@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using Google.Protobuf.WellKnownTypes;
 using Tinkoff.InvestApi.V1;
 
@@ -16,6 +17,10 @@ public class InstrumentsServiceSample
         _service = service;
         _order = order;
     }
+    public async Task WriteToFile(string path, string text)
+    {
+        await File.AppendAllTextAsync(path, text);
+    }
     public async Task<GetLastPricesResponse> GetOrderBook()
     {
         GetLastPricesRequest price = new GetLastPricesRequest();
@@ -23,24 +28,67 @@ public class InstrumentsServiceSample
         GetLastPricesResponse orderBook = await _market.GetLastPricesAsync(price);
         return orderBook;
     }
-    public async Task<PostOrderResponse> PlaceAnOrder()
+    public async Task<GetOrdersResponse> GetOrders(string account_id)
     {
-        var share = (from i in _service.Shares().Instruments select i).FirstOrDefault();
+        GetOrdersRequest orders = new GetOrdersRequest();
+        orders.AccountId = account_id;
+        return _order.GetOrders(orders);
+    }
+    public async Task<PostOrderResponse> PlaceAnOrder(string account_id, string ticker, decimal price, long quantity, OrderDirection orderType)
+    {
+        Console.WriteLine(price);
+        var share = (from i in _service.Shares().Instruments where i.Ticker == ticker select i).FirstOrDefault();
 
         PostOrderRequest order = new PostOrderRequest();
-        order.InstrumentId = share.Uid;
-        order.AccountId = "2009565603";
-        order.Quantity = 1;
-        order.Price = 100;
-        order.Direction = OrderDirection.Buy;
-        order.OrderType = OrderType.Limit;
-        order.TimeInForce = TimeInForceType.TimeInForceDay;
-        order.PriceType = PriceType.Currency;
-        order.ConfirmMarginTrade = false;
-
-        var resp = _order.PostOrder(order);
-
+        PostOrderResponse? resp = new PostOrderResponse();
+        Tinkoff.InvestApi.V1.GetTradingStatusRequest getTradingStatusesRequest = new Tinkoff.InvestApi.V1.GetTradingStatusRequest();
+        getTradingStatusesRequest.InstrumentId = share.Uid;
+        var trading_status = _market.GetTradingStatus(getTradingStatusesRequest);
+        if (trading_status.TradingStatus != SecurityTradingStatus.BreakInTrading)
+        {
+            Console.WriteLine("price: " + price);
+            order.InstrumentId = share.Uid;
+            Console.WriteLine("-8");
+            order.AccountId = account_id;
+            Console.WriteLine("-9");
+            order.Quantity = quantity;
+            Console.WriteLine("-10");
+            order.Price = price;
+            Console.WriteLine(order.Price.Units);
+            Console.WriteLine(order.Price.Nano);
+            order.Direction = orderType;
+            order.OrderType = OrderType.Limit;
+            order.TimeInForce = TimeInForceType.TimeInForceDay;
+            order.PriceType = PriceType.Currency;
+            order.ConfirmMarginTrade = false;
+            Console.WriteLine("order sent");
+            resp = _order.PostOrder(order);
+        }
+        else
+        {
+            Console.WriteLine(trading_status.TradingStatus);
+        }
         return resp;
+    }
+    public async Task<bool> CreateAnOrder(string account_id, string ticker, decimal price_from, decimal price_to, decimal step)
+    {
+        GetLastPricesRequest price = new GetLastPricesRequest();
+        price.LastPriceType = LastPriceType.LastPriceExchange;
+        GetLastPricesResponse orderBook = await _market.GetLastPricesAsync(price);
+        List<decimal> prices = new List<decimal>();
+        decimal place_price = Decimal.Round(price_from,2);
+        while (place_price < price_to && place_price + (place_price / 100 * step) < price_to)
+        {
+            prices.Add(place_price);
+            place_price = Decimal.Round(place_price + (place_price/100*step),2);
+            await WriteToFile(@"C:\Users\dmitry\source\repos\TradingBot\TradingBotService\" + ticker + ".txt", place_price.ToString() + Environment.NewLine);
+        }
+        return true;
+    }
+    public async Task<bool> GetOpenOrders()
+    {
+
+        return true;
     }
     public async Task<SharesResponse> GetInstrumentsDescriptionAsync(CancellationToken cancellationToken)
     {

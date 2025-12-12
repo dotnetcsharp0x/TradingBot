@@ -22,9 +22,17 @@ namespace TradingBot
             textBox5.Text = _shares.instruments.Count().ToString();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
-
+            try
+            {
+                await httpClient.GetFromJsonAsync<SharePrices.Root>("https://localhost:5001/api/Instrument/CreateGrid?ticker=" + textBox1.Text + "&price_from=" + textBox3.Text + "&price_to=" + textBox4.Text + "&step=" + textBox2.Text);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally { }
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
