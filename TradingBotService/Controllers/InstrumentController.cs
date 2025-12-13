@@ -38,7 +38,26 @@ namespace TradingBotService.Controllers
         public async Task<PostOrderResponse> PlaceOrder(string ticker = "SBERP", string price = "282.8070", long quantity = 1, OrderDirection orderType = OrderDirection.Buy)
         {
             decimal parse_price = Convert.ToDecimal(price.Replace(".",","));
-            PostOrderResponse resp = await new InstrumentsServiceSample(_investApi.Instruments, _investApi.MarketData, _investApi.Orders).PlaceAnOrder(_getAccountsResponse.Accounts.First().Id, ticker, parse_price, quantity, orderType);
+            PostOrderResponse resp = await new InstrumentsServiceSample(_investApi.Instruments, _investApi.MarketData, _investApi.Orders).PlaceAnOrder(_getAccountsResponse.Accounts.First().Id, ticker, parse_price, quantity, orderType, OrderType.Limit);
+            return resp;
+        }
+
+        [HttpGet("PlaceOrderSell")]
+        public async Task<PostOrderResponse> PlaceOrderSell(string ticker = "SBERP", string price = "282.8070", long quantity = 1, OrderDirection orderType = OrderDirection.Sell)
+        {
+            decimal parse_price = Convert.ToDecimal(price.Replace(".",","));
+            PostOrderResponse resp = await new InstrumentsServiceSample(_investApi.Instruments, _investApi.MarketData, _investApi.Orders).PlaceAnOrder(_getAccountsResponse.Accounts.First().Id, ticker, parse_price, quantity, orderType, OrderType.Limit);
+            return resp;
+        }
+        public class CancelOrderView
+        {
+            public List<string> order_id { get; set; }
+            public Tinkoff.InvestApi.V1.OrderType orderType { get; set; }
+        }
+        [HttpPost("CancelOrder")]
+        public async Task<CancelOrderResponse> CancelOrder(CancelOrderView orderview)
+        {
+            CancelOrderResponse resp = await new InstrumentsServiceSample(_investApi.Instruments, _investApi.MarketData, _investApi.Orders).CancelOrder(_getAccountsResponse.Accounts.First().Id, orderview.order_id, (OrderIdType)orderview.orderType);
             return resp;
         }
 

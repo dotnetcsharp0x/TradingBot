@@ -10,9 +10,11 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Tinkoff.InvestApi.V1;
 using TradingBotService;
 using static System.Net.Mime.MediaTypeNames;
+using static TradingBot.SharePrices;
 
 namespace TradingBot.Actions
 {
@@ -23,6 +25,7 @@ namespace TradingBot.Actions
         private bool decrease = true;
         static HttpClient httpClient = new HttpClient();
         private DDD.Root _shares { get; set; }
+        private SharePrices.Root _prices { get; set; }
         public RunBot() { }
         public async Task WriteToFile(string path,string text)
         {
@@ -32,20 +35,28 @@ namespace TradingBot.Actions
         public async Task<double?> ReadOrders()
         {
             var resp = await httpClient.GetFromJsonAsync<OrdersNew.Root>("https://localhost:5001/api/Instrument/GetOrders");
-            if (resp.orders.Count() > 0) 
+            DirectoryInfo place = new DirectoryInfo(@"C:\Users\dmitry\source\repos\TradingBot\TradingBotService");
+            FileInfo[] Files = place.GetFiles("*.txt");
+            _shares = await httpClient.GetFromJsonAsync<DDD.Root>("https://localhost:5001/api/Instrument/GetInstrument");
+            _prices = await httpClient.GetFromJsonAsync<SharePrices.Root>("https://localhost:5001/api/Instrument/GetOrderBook");
+            var Tickers = (from share in _shares.instruments select share);
+            if (resp.orders.Count() > 0 || Tickers.Count() > 0) 
             {
-                _shares = await httpClient.GetFromJsonAsync<DDD.Root>("https://localhost:5001/api/Instrument/GetInstrument");
-                DirectoryInfo place = new DirectoryInfo(@"C:\Users\dmitry\source\repos\TradingBot\TradingBotService");
-                FileInfo[] Files = place.GetFiles("*.txt");
-                var Tickers = (from share in _shares.instruments select share);
                 foreach (FileInfo i in Files)
                 {
-                    var Tickerd = (from share in Tickers where share.ticker == i.Name.Replace(".txt", "") select share).FirstOrDefault();
+                    var split_i = i.Name.Split("-");
+                    string step_test = split_i[1].Replace(".txt","");
+                    decimal step = Convert.ToDecimal(split_i[1].Replace(".txt", "")) /100;
+                    var Tickerd = (from share in Tickers where share.ticker == split_i[0].Replace(".txt", "") select share).FirstOrDefault();
+                    var Prices = (from share in _prices.lastPrices where share.instrumentUid == Tickerd.uid select share).FirstOrDefault();
                     if (Tickerd != null) {
                         foreach (string line in File.ReadLines(@"C:\Users\dmitry\source\repos\TradingBot\TradingBotService\" + i.Name))
                         {
                             decimal price = Decimal.Round(decimal.Parse(line),2);
-
+                            if (Convert.ToDecimal(price) == Convert.ToDecimal(170.85))
+                            {
+                                Console.WriteLine("d");
+                            }
                             int founded = 0;
                             var order_item = (from ord in resp.orders where ord.instrumentUid == Tickerd.uid select ord);
                             foreach (var order_price in order_item)
@@ -53,19 +64,14 @@ namespace TradingBot.Actions
                                 string pri = "";
                                 int count = order_price.initialOrderPrice.nano.ToString().Count();
                                 //MessageBox.Show(count.ToString());
-                                if (count == 9)
-                                {
-                                    pri = String.Format(order_price.initialOrderPrice.units.ToString() + "," + order_price.initialOrderPrice.nano.ToString());
-                                }
-                                else
-                                {
-                                    pri = String.Format(order_price.initialOrderPrice.units.ToString() + ",0" + order_price.initialOrderPrice.nano.ToString());
-                                }
+                                pri = String.Format(order_price.initialOrderPrice.units.ToString() + "," + order_price.initialOrderPrice.nano.ToString());
+                                
                                 Instrument instrument = new Instrument();
                                 PostOrderRequest order = new PostOrderRequest();
                                 order.Price = price;
                                 decimal orderPrice = Decimal.Round(decimal.Parse(pri), 2);
-                                if (Convert.ToDecimal(orderPrice) == Convert.ToDecimal(287.07))
+                                orderPrice = orderPrice / Tickerd.lot;
+                                if (Convert.ToDecimal(orderPrice) == Convert.ToDecimal(170.85))
                                 {
                                     Console.WriteLine("d");
                                 }
@@ -78,7 +84,18 @@ namespace TradingBot.Actions
                             {
                                 try
                                 {
-                                    await httpClient.GetFromJsonAsync<SharePrices.Root>("https://localhost:5001/api/Instrument/PlaceOrder?ticker=" + i.Name.Replace(".txt", "") + "&price=" + price);
+                                    string pri = "";
+                                    pri = String.Format(Prices.price.units.ToString() + "," + Prices.price.nano.ToString());
+                                    decimal orderPrice = Decimal.Round(decimal.Parse(pri), 2);
+                                    //orderPrice = orderPrice / Tickerd.lot;
+                                    if (orderPrice > price+(price/100*step))
+                                    {
+                                        await httpClient.GetFromJsonAsync<SharePrices.Root>("https://localhost:5001/api/Instrument/PlaceOrder?ticker=" + split_i[0].Replace(".txt", "") + "&price=" + price);
+                                    }
+                                    if (orderPrice < price-(price / 100 * step))
+                                    {
+                                        await httpClient.GetFromJsonAsync<SharePrices.Root>("https://localhost:5001/api/Instrument/PlaceOrderSell?ticker=" + split_i[0].Replace(".txt", "") + "&price=" + price);
+                                    }
                                 }
                                 catch (Exception ex)
                                 {

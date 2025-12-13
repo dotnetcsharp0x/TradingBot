@@ -1,6 +1,8 @@
 ﻿using System.Globalization;
+using System.Net.Http;
 using System.Text;
 using Google.Protobuf.WellKnownTypes;
+using Tinkoff.InvestApi;
 using Tinkoff.InvestApi.V1;
 
 namespace TradingBotService;
@@ -10,6 +12,7 @@ public class InstrumentsServiceSample
     private readonly InstrumentsService.InstrumentsServiceClient _service;
     private readonly MarketDataService.MarketDataServiceClient _market;
     private readonly OrdersService.OrdersServiceClient _order;
+    static HttpClient httpClient = new HttpClient();
 
     public InstrumentsServiceSample(InstrumentsService.InstrumentsServiceClient service, MarketDataService.MarketDataServiceClient market, OrdersService.OrdersServiceClient order)
     {
@@ -34,7 +37,21 @@ public class InstrumentsServiceSample
         orders.AccountId = account_id;
         return _order.GetOrders(orders);
     }
-    public async Task<PostOrderResponse> PlaceAnOrder(string account_id, string ticker, decimal price, long quantity, OrderDirection orderType)
+    public async Task<CancelOrderResponse> CancelOrder(string account_id, List<string> order_id, OrderIdType orderType)
+    {
+        CancelOrderRequest order = new CancelOrderRequest();
+        CancelOrderResponse cancelOrderResponse = new CancelOrderResponse();
+        foreach (var item in order_id)
+        {
+            order.AccountId = account_id;
+            order.OrderId = item;
+            order.OrderIdType = orderType;
+            cancelOrderResponse = await _order.CancelOrderAsync(order);
+            Thread.Sleep(1000);
+        }
+        return cancelOrderResponse;
+    }
+    public async Task<PostOrderResponse> PlaceAnOrder(string account_id, string ticker, decimal price, long quantity, OrderDirection orderType, OrderType orderType1)
     {
         Console.WriteLine(price);
         var share = (from i in _service.Shares().Instruments where i.Ticker == ticker select i).FirstOrDefault();
@@ -44,7 +61,11 @@ public class InstrumentsServiceSample
         Tinkoff.InvestApi.V1.GetTradingStatusRequest getTradingStatusesRequest = new Tinkoff.InvestApi.V1.GetTradingStatusRequest();
         getTradingStatusesRequest.InstrumentId = share.Uid;
         var trading_status = _market.GetTradingStatus(getTradingStatusesRequest);
-        if (trading_status.TradingStatus != SecurityTradingStatus.BreakInTrading)
+        Console.WriteLine(Environment.NewLine);
+        Console.WriteLine(SecurityTradingStatus.NormalTrading);
+        Console.WriteLine(Environment.NewLine);
+        if (trading_status.TradingStatus == SecurityTradingStatus.NormalTrading || trading_status.TradingStatus == SecurityTradingStatus.DealerNormalTrading
+             || trading_status.TradingStatus == SecurityTradingStatus.OpeningAuctionPeriod)
         {
             Console.WriteLine("price: " + price);
             order.InstrumentId = share.Uid;
@@ -57,7 +78,7 @@ public class InstrumentsServiceSample
             Console.WriteLine(order.Price.Units);
             Console.WriteLine(order.Price.Nano);
             order.Direction = orderType;
-            order.OrderType = OrderType.Limit;
+            order.OrderType = orderType1;
             order.TimeInForce = TimeInForceType.TimeInForceDay;
             order.PriceType = PriceType.Currency;
             order.ConfirmMarginTrade = false;
@@ -76,13 +97,29 @@ public class InstrumentsServiceSample
         price.LastPriceType = LastPriceType.LastPriceExchange;
         GetLastPricesResponse orderBook = await _market.GetLastPricesAsync(price);
         List<decimal> prices = new List<decimal>();
+        int quantity = 0;
         decimal place_price = Decimal.Round(price_from,2);
+        GetLastPricesRequest price1 = new GetLastPricesRequest();
+        price.LastPriceType = LastPriceType.LastPriceExchange;
+        GetLastPricesResponse orderBook1 = await _market.GetLastPricesAsync(price);
+        var _shares = await httpClient.GetFromJsonAsync<DDD.Root>("https://localhost:5001/api/Instrument/GetInstrument");
+        var Tickers = (from share in _shares.instruments select share);
+        var Tickerd = (from share in Tickers where share.ticker == ticker select share).FirstOrDefault();
+        var Prices = (from share in orderBook1.LastPrices where share.InstrumentUid == Tickerd.uid select share).FirstOrDefault();
+        string pri = "";
+        pri = String.Format(Prices.Price.Units.ToString() + "," + Prices.Price.Nano.ToString());
+        decimal orderPrice = Decimal.Round(decimal.Parse(pri), 2);
         while (place_price < price_to && place_price + (place_price / 100 * step) < price_to)
         {
             prices.Add(place_price);
             place_price = Decimal.Round(place_price + (place_price/100*step),2);
-            await WriteToFile(@"C:\Users\dmitry\source\repos\TradingBot\TradingBotService\" + ticker + ".txt", place_price.ToString() + Environment.NewLine);
+            if (orderPrice < place_price)
+            {
+                quantity++;
+            }
+            await WriteToFile(@"C:\Users\dmitry\source\repos\TradingBot\TradingBotService\" + ticker + "-" + Convert.ToInt32(step*100) + ".txt", place_price.ToString() + Environment.NewLine);
         }
+        await PlaceAnOrder(account_id, ticker, 0, quantity, OrderDirection.Buy, OrderType.Market);
         return true;
     }
     public async Task<bool> GetOpenOrders()
@@ -181,6 +218,7 @@ public class InstrumentsServiceSample
         return shares;
     }
 
+    
 
     private class InstrumentsFormatter
     {
