@@ -181,7 +181,12 @@ namespace TradingBot
         {
             try
             {
-                if (Convert.ToDecimal(textBox2.Text.Replace(".", ",")) > Convert.ToDecimal(0.01) && Convert.ToDecimal(textBox5.Text.Replace(".", ",")) > Convert.ToDecimal(0.01))
+                if (Convert.ToDecimal(textBox2.Text.Length) > Convert.ToDecimal(1)
+                    && Convert.ToDecimal(textBox2.Text.Replace(".", ",")) > Convert.ToDecimal(0)
+                    && Convert.ToDecimal(textBox5.Text.Length) > Convert.ToDecimal(0)
+                    && Convert.ToDecimal(textBox3.Text.Length) > Convert.ToDecimal(0)
+                    && Convert.ToDecimal(textBox4.Text.Length) > Convert.ToDecimal(0)
+                    )
                 {
                     string ticker = textBox1.Text.ToUpper();
                     var resp = (from i in _shares.instruments where i.ticker == ticker select i);
@@ -213,6 +218,21 @@ namespace TradingBot
                 MessageBox.Show(ex.Message.ToString());
             }
             finally { }
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void textBox4_TextChanged(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            CalcLotWeight();
         }
     }
 }

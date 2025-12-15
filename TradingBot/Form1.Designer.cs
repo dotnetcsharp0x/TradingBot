@@ -60,6 +60,7 @@
             textBox5 = new TextBox();
             label18 = new Label();
             label19 = new Label();
+            button4 = new Button();
             groupBox1.SuspendLayout();
             SuspendLayout();
             // 
@@ -113,6 +114,7 @@
             textBox3.Name = "textBox3";
             textBox3.Size = new Size(100, 23);
             textBox3.TabIndex = 6;
+            textBox3.TextChanged += textBox3_TextChanged;
             // 
             // label3
             // 
@@ -129,6 +131,7 @@
             textBox4.Name = "textBox4";
             textBox4.Size = new Size(100, 23);
             textBox4.TabIndex = 8;
+            textBox4.TextChanged += textBox4_TextChanged;
             // 
             // label4
             // 
@@ -354,11 +357,22 @@
             label19.Size = new Size(0, 15);
             label19.TabIndex = 29;
             // 
+            // button4
+            // 
+            button4.Location = new Point(363, 161);
+            button4.Name = "button4";
+            button4.Size = new Size(113, 37);
+            button4.TabIndex = 25;
+            button4.Text = "Просчитать";
+            button4.UseVisualStyleBackColor = true;
+            button4.Click += button4_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 657);
+            Controls.Add(button4);
             Controls.Add(label19);
             Controls.Add(label18);
             Controls.Add(textBox5);
@@ -425,5 +439,6 @@
         private TextBox textBox5;
         private Label label18;
         private Label label19;
+        private Button button4;
     }
 }
