@@ -49,11 +49,17 @@
             label11 = new Label();
             label12 = new Label();
             groupBox1 = new GroupBox();
+            label14 = new Label();
+            listBox4 = new ListBox();
             button3 = new Button();
             button2 = new Button();
             label13 = new Label();
-            label14 = new Label();
-            listBox4 = new ListBox();
+            label15 = new Label();
+            label16 = new Label();
+            label17 = new Label();
+            textBox5 = new TextBox();
+            label18 = new Label();
+            label19 = new Label();
             groupBox1.SuspendLayout();
             SuspendLayout();
             // 
@@ -90,6 +96,7 @@
             textBox2.Name = "textBox2";
             textBox2.Size = new Size(100, 23);
             textBox2.TabIndex = 4;
+            textBox2.TextChanged += textBox2_TextChanged;
             // 
             // label2
             // 
@@ -249,6 +256,24 @@
             groupBox1.TabStop = false;
             groupBox1.Text = "Заявки:";
             // 
+            // label14
+            // 
+            label14.AutoSize = true;
+            label14.Location = new Point(464, 17);
+            label14.Name = "label14";
+            label14.Size = new Size(137, 15);
+            label14.TabIndex = 24;
+            label14.Text = "Запрет на размещение:";
+            // 
+            // listBox4
+            // 
+            listBox4.FormattingEnabled = true;
+            listBox4.ItemHeight = 15;
+            listBox4.Location = new Point(464, 35);
+            listBox4.Name = "listBox4";
+            listBox4.Size = new Size(120, 244);
+            listBox4.TabIndex = 23;
+            // 
             // button3
             // 
             button3.Location = new Point(674, 78);
@@ -277,29 +302,69 @@
             label13.Size = new Size(0, 15);
             label13.TabIndex = 22;
             // 
-            // label14
+            // label15
             // 
-            label14.AutoSize = true;
-            label14.Location = new Point(464, 17);
-            label14.Name = "label14";
-            label14.Size = new Size(137, 15);
-            label14.TabIndex = 24;
-            label14.Text = "Запрет на размещение:";
+            label15.AutoSize = true;
+            label15.Location = new Point(24, 267);
+            label15.Name = "label15";
+            label15.Size = new Size(110, 15);
+            label15.TabIndex = 23;
+            label15.Text = "Количество лотов:";
             // 
-            // listBox4
+            // label16
             // 
-            listBox4.FormattingEnabled = true;
-            listBox4.ItemHeight = 15;
-            listBox4.Location = new Point(464, 35);
-            listBox4.Name = "listBox4";
-            listBox4.Size = new Size(120, 244);
-            listBox4.TabIndex = 23;
+            label16.AutoSize = true;
+            label16.Location = new Point(25, 306);
+            label16.Name = "label16";
+            label16.Size = new Size(108, 15);
+            label16.TabIndex = 25;
+            label16.Text = "Количество сеток:";
+            // 
+            // label17
+            // 
+            label17.AutoSize = true;
+            label17.Location = new Point(160, 306);
+            label17.Name = "label17";
+            label17.Size = new Size(0, 15);
+            label17.TabIndex = 26;
+            // 
+            // textBox5
+            // 
+            textBox5.Location = new Point(160, 259);
+            textBox5.Name = "textBox5";
+            textBox5.Size = new Size(100, 23);
+            textBox5.TabIndex = 27;
+            textBox5.Text = "1";
+            textBox5.TextChanged += textBox5_TextChanged;
+            // 
+            // label18
+            // 
+            label18.AutoSize = true;
+            label18.Location = new Point(24, 334);
+            label18.Name = "label18";
+            label18.Size = new Size(82, 15);
+            label18.TabIndex = 28;
+            label18.Text = "Ср. значение:";
+            // 
+            // label19
+            // 
+            label19.AutoSize = true;
+            label19.Location = new Point(161, 334);
+            label19.Name = "label19";
+            label19.Size = new Size(0, 15);
+            label19.TabIndex = 29;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 657);
+            Controls.Add(label19);
+            Controls.Add(label18);
+            Controls.Add(textBox5);
+            Controls.Add(label17);
+            Controls.Add(label16);
+            Controls.Add(label15);
             Controls.Add(label13);
             Controls.Add(groupBox1);
             Controls.Add(label9);
@@ -354,5 +419,11 @@
         private Button button3;
         private Label label14;
         private ListBox listBox4;
+        private Label label15;
+        private Label label16;
+        private Label label17;
+        private TextBox textBox5;
+        private Label label18;
+        private Label label19;
     }
 }

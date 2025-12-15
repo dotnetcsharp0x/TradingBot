@@ -62,9 +62,9 @@ namespace TradingBotService.Controllers
         }
 
         [HttpGet("CreateGrid")]
-        public async Task<bool> CreateGrid(string ticker = "SBERP", decimal price_from = 1, decimal price_to = 1, decimal step = 1)
+        public async Task<bool> CreateGrid(string ticker = "SBERP", decimal price_from = 1, decimal price_to = 1, decimal step = 1, int qty = 1)
         {
-            var resp = await new InstrumentsServiceSample(_investApi.Instruments, _investApi.MarketData, _investApi.Orders).CreateAnOrder(_getAccountsResponse.Accounts.First().Id, ticker, price_from, price_to, step);
+            var resp = await new InstrumentsServiceSample(_investApi.Instruments, _investApi.MarketData, _investApi.Orders).CreateAnOrder(_getAccountsResponse.Accounts.First().Id, ticker, price_from, price_to, step, qty);
             return true;
         }
 

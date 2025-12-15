@@ -4,6 +4,7 @@ using System.Text;
 using Google.Protobuf.WellKnownTypes;
 using Tinkoff.InvestApi;
 using Tinkoff.InvestApi.V1;
+using System.Configuration;
 
 namespace TradingBotService;
 
@@ -13,7 +14,7 @@ public class InstrumentsServiceSample
     private readonly MarketDataService.MarketDataServiceClient _market;
     private readonly OrdersService.OrdersServiceClient _order;
     static HttpClient httpClient = new HttpClient();
-
+    string pathfile = System.Configuration.ConfigurationManager.AppSettings["Path"];
     public InstrumentsServiceSample(InstrumentsService.InstrumentsServiceClient service, MarketDataService.MarketDataServiceClient market, OrdersService.OrdersServiceClient order)
     {
         _market = market;
@@ -91,7 +92,7 @@ public class InstrumentsServiceSample
         }
         return resp;
     }
-    public async Task<bool> CreateAnOrder(string account_id, string ticker, decimal price_from, decimal price_to, decimal step)
+    public async Task<bool> CreateAnOrder(string account_id, string ticker, decimal price_from, decimal price_to, decimal step, int qty)
     {
         GetLastPricesRequest price = new GetLastPricesRequest();
         price.LastPriceType = LastPriceType.LastPriceExchange;
@@ -117,7 +118,7 @@ public class InstrumentsServiceSample
             {
                 quantity++;
             }
-            await WriteToFile(@"C:\Users\dmitry\source\repos\TradingBot\TradingBotService\" + ticker + "-" + Convert.ToInt32(step*100) + ".txt", place_price.ToString() + Environment.NewLine);
+            await WriteToFile(pathfile + ticker + "-" + Convert.ToInt32(step*100) + "-" + qty + ".txt", place_price.ToString() + Environment.NewLine);
         }
         await PlaceAnOrder(account_id, ticker, 0, quantity, OrderDirection.Buy, OrderType.Market);
         return true;

@@ -88,13 +88,18 @@ namespace TradingBot.Actions
                                     pri = String.Format(Prices.price.units.ToString() + "," + Prices.price.nano.ToString());
                                     decimal orderPrice = Decimal.Round(decimal.Parse(pri), 2);
                                     //orderPrice = orderPrice / Tickerd.lot;
-                                    if (orderPrice > price+(price/100*step))
+                                    decimal calc_diffrence_down = orderPrice - (orderPrice / Convert.ToDecimal(100 * 6));
+                                    decimal calc_diffrence_up = orderPrice + (orderPrice / Convert.ToDecimal(100 * 6));
+                                    if (price > calc_diffrence_down && price < calc_diffrence_up)
                                     {
-                                        await httpClient.GetFromJsonAsync<SharePrices.Root>("https://localhost:5001/api/Instrument/PlaceOrder?ticker=" + split_i[0].Replace(".txt", "") + "&price=" + price);
-                                    }
-                                    if (orderPrice < price-(price / 100 * step))
-                                    {
-                                        await httpClient.GetFromJsonAsync<SharePrices.Root>("https://localhost:5001/api/Instrument/PlaceOrderSell?ticker=" + split_i[0].Replace(".txt", "") + "&price=" + price);
+                                        if (orderPrice > price + (price / 100 * step))
+                                        {
+                                            await httpClient.GetFromJsonAsync<SharePrices.Root>("https://localhost:5001/api/Instrument/PlaceOrder?ticker=" + split_i[0].Replace(".txt", "") + "&price=" + price + "&quantity=" + split_i[2].Replace(".txt", ""));
+                                        }
+                                        if (orderPrice < price - (price / 100 * step))
+                                        {
+                                            await httpClient.GetFromJsonAsync<SharePrices.Root>("https://localhost:5001/api/Instrument/PlaceOrderSell?ticker=" + split_i[0].Replace(".txt", "") + "&price=" + price + "&quantity=" + split_i[2].Replace(".txt", ""));
+                                        }
                                     }
                                 }
                                 catch (Exception ex)
