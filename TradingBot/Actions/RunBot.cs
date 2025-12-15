@@ -88,8 +88,8 @@ namespace TradingBot.Actions
                                     pri = String.Format(Prices.price.units.ToString() + "," + Prices.price.nano.ToString());
                                     decimal orderPrice = Decimal.Round(decimal.Parse(pri), 2);
                                     //orderPrice = orderPrice / Tickerd.lot;
-                                    decimal calc_diffrence_down = orderPrice - (orderPrice / Convert.ToDecimal(100 * 6));
-                                    decimal calc_diffrence_up = orderPrice + (orderPrice / Convert.ToDecimal(100 * 6));
+                                    decimal calc_diffrence_down = orderPrice - (orderPrice / Convert.ToDecimal(100) *  Convert.ToDecimal(6));
+                                    decimal calc_diffrence_up = orderPrice + (orderPrice / Convert.ToDecimal(100)* Convert.ToDecimal(6));
                                     if (price > calc_diffrence_down && price < calc_diffrence_up)
                                     {
                                         if (orderPrice > price + (price / 100 * step))

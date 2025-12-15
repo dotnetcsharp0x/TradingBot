@@ -5,6 +5,7 @@ using System.Text.Json;
 using Tinkoff.InvestApi.V1;
 using TradingBotService;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
+using static TradingBot.SharePrices;
 using static TradingBotService.Controllers.InstrumentController;
 
 namespace TradingBot
@@ -73,7 +74,10 @@ namespace TradingBot
             }
             finally { }
         }
-
+        public class ListItems
+        {
+            public string LstItem { get; set; }
+        }
         private async void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listBox1.Text.Length > 0)
@@ -83,6 +87,8 @@ namespace TradingBot
                 _shares = await httpClient.GetFromJsonAsync<DDD.Root>("https://localhost:5001/api/Instrument/GetInstrument");
                 var Tickers = (from share in _shares.instruments select share);
                 var resp = await httpClient.GetFromJsonAsync<OrdersNew.Root>("https://localhost:5001/api/Instrument/GetOrders");
+                List<ListItems> _listBox2 = new List<ListItems>();
+                List<ListItems> _listBox3 = new List<ListItems>();
                 foreach (string line in File.ReadLines(System.Configuration.ConfigurationManager.AppSettings["Path"] + listBox1.Text + ".txt"))
                 {
                     decimal price = Decimal.Round(decimal.Parse(line), 2);
@@ -98,17 +104,27 @@ namespace TradingBot
 
                         if (order_item.direction == 1)
                         {
-                            listBox2.Items.Add(price.ToString());
+                            _listBox2.Add(new ListItems() { LstItem = price.ToString() });
                         }
                         if (order_item.direction == 2)
                         {
-                            listBox3.Items.Add(price.ToString());
+                            _listBox3.Add(new ListItems() { LstItem = price.ToString() });
                         }
                     }
                     else
                     {
                         listBox4.Items.Add(price.ToString());
                     }
+                }
+                _listBox2 = _listBox2.OrderByDescending(x => x.LstItem).ToList();
+                _listBox3 = _listBox3.OrderBy(x => x.LstItem).ToList();
+                foreach(var item in _listBox2)
+                {
+                    listBox2.Items.Add(item.LstItem.ToString());
+                }
+                foreach(var item in _listBox3)
+                {
+                    listBox3.Items.Add(item.LstItem.ToString());
                 }
             }
         }
