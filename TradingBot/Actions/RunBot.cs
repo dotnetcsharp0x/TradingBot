@@ -35,7 +35,7 @@ namespace TradingBot.Actions
         public async Task<double?> ReadOrders()
         {
             var resp = await httpClient.GetFromJsonAsync<OrdersNew.Root>("https://localhost:5001/api/Instrument/GetOrders");
-            DirectoryInfo place = new DirectoryInfo(@"C:\Users\dmitry\source\repos\TradingBot\TradingBotService");
+            DirectoryInfo place = new DirectoryInfo(new DirectoryInfo(System.Configuration.ConfigurationManager.AppSettings["Path"]).ToString());
             FileInfo[] Files = place.GetFiles("*.txt");
             _shares = await httpClient.GetFromJsonAsync<DDD.Root>("https://localhost:5001/api/Instrument/GetInstrument");
             _prices = await httpClient.GetFromJsonAsync<SharePrices.Root>("https://localhost:5001/api/Instrument/GetOrderBook");
@@ -50,7 +50,7 @@ namespace TradingBot.Actions
                     var Tickerd = (from share in Tickers where share.ticker == split_i[0].Replace(".txt", "") select share).FirstOrDefault();
                     var Prices = (from share in _prices.lastPrices where share.instrumentUid == Tickerd.uid select share).FirstOrDefault();
                     if (Tickerd != null) {
-                        foreach (string line in File.ReadLines(@"C:\Users\dmitry\source\repos\TradingBot\TradingBotService\" + i.Name))
+                        foreach (string line in File.ReadLines(new DirectoryInfo(System.Configuration.ConfigurationManager.AppSettings["Path"]) + i.Name))
                         {
                             decimal price = Decimal.Round(decimal.Parse(line),2);
                             if (Convert.ToDecimal(price) == Convert.ToDecimal(178.7))
