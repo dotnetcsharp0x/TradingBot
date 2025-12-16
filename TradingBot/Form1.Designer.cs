@@ -61,6 +61,7 @@
             label18 = new Label();
             label19 = new Label();
             button4 = new Button();
+            label20 = new Label();
             groupBox1.SuspendLayout();
             SuspendLayout();
             // 
@@ -367,11 +368,20 @@
             button4.UseVisualStyleBackColor = true;
             button4.Click += button4_Click;
             // 
+            // label20
+            // 
+            label20.AutoSize = true;
+            label20.Location = new Point(269, 334);
+            label20.Name = "label20";
+            label20.Size = new Size(0, 15);
+            label20.TabIndex = 30;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 657);
+            Controls.Add(label20);
             Controls.Add(button4);
             Controls.Add(label19);
             Controls.Add(label18);
@@ -440,5 +450,6 @@
         private Label label18;
         private Label label19;
         private Button button4;
+        private Label label20;
     }
 }

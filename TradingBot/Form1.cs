@@ -84,6 +84,7 @@ namespace TradingBot
             {
                 listBox2.Items.Clear();
                 listBox3.Items.Clear();
+                listBox4.Items.Clear();
                 _shares = await httpClient.GetFromJsonAsync<DDD.Root>("https://localhost:5001/api/Instrument/GetInstrument");
                 var Tickers = (from share in _shares.instruments select share);
                 var resp = await httpClient.GetFromJsonAsync<OrdersNew.Root>("https://localhost:5001/api/Instrument/GetOrders");
@@ -96,7 +97,7 @@ namespace TradingBot
                     var ticker = listBox1.Text.Split("-");
                     var Tickerd = (from share in Tickers where share.ticker == ticker[0] select share).FirstOrDefault();
                     //
-                    var order_item = (from ord in resp.orders where ord.instrumentUid == Tickerd.uid && Convert.ToDecimal(Convert.ToDecimal(String.Format(ord.initialOrderPrice.units.ToString() + "," + ord.initialOrderPrice.nano.ToString())) / Tickerd.lot) == Convert.ToDecimal(line) select ord).FirstOrDefault();
+                    var order_item = (from ord in resp.orders where ord.instrumentUid == Tickerd.uid && Convert.ToDecimal(Convert.ToDecimal(String.Format(ord.initialOrderPrice.units.ToString() + "," + ord.initialOrderPrice.nano.ToString())) / Tickerd.lot)/ Convert.ToDecimal(ticker[2].Replace(".txt", "")) == Convert.ToDecimal(line) select ord).FirstOrDefault();
                     if (order_item != null)
                     {
                         pri = String.Format(order_item.initialOrderPrice.units.ToString() + "," + order_item.initialOrderPrice.nano.ToString());
@@ -226,6 +227,7 @@ namespace TradingBot
 
                         label17.Text = qty.ToString();
                         label19.Text = (pr * Convert.ToDecimal(textBox5.Text) * (from i in _shares.instruments where i.ticker == ticker select i).FirstOrDefault().lot).ToString();
+                        label20.Text = resp.FirstOrDefault().currency;
                     }
                 }
             }

@@ -116,7 +116,7 @@ public class InstrumentsServiceSample
             place_price = Decimal.Round(place_price + (place_price/100*step),2);
             if (orderPrice < place_price)
             {
-                quantity++;
+                quantity=quantity + qty;
             }
             await WriteToFile(pathfile + ticker + "-" + Convert.ToInt32(step*100) + "-" + qty + ".txt", place_price.ToString() + Environment.NewLine);
         }

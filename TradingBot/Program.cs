@@ -28,7 +28,7 @@ namespace TradingBot
                     try
                     {
                         await new RunBot().ReadOrders();
-                        await Task.Delay(TimeSpan.FromSeconds(60));
+                        await Task.Delay(TimeSpan.FromSeconds(30));
                     }
                     catch (Exception ex)
                     {

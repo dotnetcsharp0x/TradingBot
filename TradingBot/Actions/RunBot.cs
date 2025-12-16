@@ -53,7 +53,7 @@ namespace TradingBot.Actions
                         foreach (string line in File.ReadLines(new DirectoryInfo(System.Configuration.ConfigurationManager.AppSettings["Path"]) + i.Name))
                         {
                             decimal price = Decimal.Round(decimal.Parse(line),2);
-                            if (Convert.ToDecimal(price) == Convert.ToDecimal(178.7))
+                            if (Convert.ToDecimal(price) == Convert.ToDecimal(169.67))
                             {
                                 Console.WriteLine("d");
                             }
@@ -70,8 +70,8 @@ namespace TradingBot.Actions
                                 PostOrderRequest order = new PostOrderRequest();
                                 order.Price = price;
                                 decimal orderPrice = Decimal.Round(decimal.Parse(pri), 2);
-                                orderPrice = orderPrice / Tickerd.lot;
-                                if (Convert.ToDecimal(orderPrice) == Convert.ToDecimal(178.7))
+                                orderPrice = orderPrice / Tickerd.lot / Convert.ToDecimal(split_i[2].Replace(".txt",""));
+                                if (Convert.ToDecimal(orderPrice) == Convert.ToDecimal(169.67))
                                 {
                                     Console.WriteLine("d");
                                 }
