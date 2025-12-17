@@ -1,6 +1,7 @@
 # TradingBot
 
 Создать appsettings.json внутри проекта TradingBotSerivice с настройками ниже:
+
 {
   "Logging": {
     "LogLevel": {
