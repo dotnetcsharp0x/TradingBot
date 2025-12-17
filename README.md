@@ -17,3 +17,6 @@
 
 Запустить TradingBotSerivce
 Запустить TradingBot
+
+
+В проекте TradingBot в файле app.config указать путь для размещения файла сделок <add key="Path" value="Ваш путь"/>
