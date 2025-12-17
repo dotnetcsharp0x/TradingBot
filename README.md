@@ -13,3 +13,7 @@
   "AccessToken": "ваш токен"
 
 }
+
+
+Запустить TradingBotSerivce
+Запустить TradingBot
