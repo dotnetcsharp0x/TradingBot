@@ -1,7 +1,7 @@
 # TradingBot
 
 Создать appsettings.json внутри проекта TradingBotSerivice с настройками ниже:
-
+```json
 {
   "Logging": {
     "LogLevel": {
@@ -14,7 +14,7 @@
   "AccessToken": "ваш токен"
 
 }
-
+```
 
 Запустить TradingBotSerivce
 Запустить TradingBot
