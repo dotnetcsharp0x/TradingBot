@@ -16,6 +16,12 @@
 }
 ```
 
+В проекте TradingBotService в файле app.config указать путь для размещения файла сделок 
+
+```config
+<add key="Path" value="Ваш путь"/>
+```
+
 Запустить TradingBotSerivce
 
 В проекте TradingBot в файле app.config указать путь для размещения файла сделок 
